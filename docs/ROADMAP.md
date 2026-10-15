@@ -58,6 +58,8 @@ Ballots in the first governance set:
 | `allow-image` | A container digest workers are permitted to run |
 | `burst-budget` | The most ETH per day that may be spent on Vast |
 | `count-receipts` | Whether paid overflow is even switched on |
+| `admit-file` | A hash and a size allowed into the project's storage |
+| `storage-budget` | The most bytes the project may hold, and how many files |
 
 A ballot passes by more sway in favor than against, among ballots that arrive before it expires. There is no quorum theater in the first contract. A charter can raise its own threshold later, in the charter, not in a global parameter.
 
@@ -170,11 +172,17 @@ A project needs its files to outlive the person who started it: the charter, the
 
 The files stay in their original bytes, named by their hash. A member grants this project a number of gigabytes, the same way they grant cores. Compute goes quiet when the queue is empty. The files they promised to hold stay until they revoke the grant, and a revoke waits until enough other members hold them.
 
-Proof of possession, not proof of replication. The holder builds a Merkle tree over the file and commits the root. A challenge, taken from a public random, names a chunk. The holder returns that chunk and the path to the root, signed with the worker key. A checker hashes the chunk and checks the path. Same rule as any other task: a second machine recomputes a pure function. There is no sealing step. Sealing would hide the bytes the next task has to read, and it is too heavy for the machines this is for.
+Proof of possession, not proof of replication. A file is cut into pieces. Each piece has a hash, and the hash of that list is the file's name. This is a torrent. A download asks several holders for different pieces at once, checks each hash, and throws the piece away if it does not match. A bad peer cannot land trash in the file, and cannot slow the transfer down to a single machine.
 
-A file counts as held only while at least three members have answered a recent challenge. If that number falls, the project posts a store lease and someone with free grant takes a copy. Some challenges are a fetch: a different member has to actually get the chunk and confirm the hash. Possession without serving does not count.
+The holder also builds a Merkle tree over those pieces and commits the root. A challenge, taken from a public random, names a piece. The holder returns that piece and the path to the root, signed with the worker key. A checker hashes the piece and checks the path. Same rule as any other task. There is no sealing step. Sealing would hide the bytes the next task has to read.
 
-Answering challenges on files the project listed earns storage sway on that charter. It decays, it does not transfer, and a charter caps it so a shelf of disks cannot outweigh accepted work. Unused capacity, and disk rented to no project, earns nothing.
+Small files, including the charter and the log, are kept whole on at least three members. A large file is striped. The pieces are spread across holders with two extra parity pieces, the way RAID 6 keeps two disks of parity rather than RAID 5's one. One home machine being offline is normal. One parity piece is not enough. Any missing piece can be rebuilt from the others, and the rebuilt bytes still have to match the piece hash. Parity is for survival. The hash is for integrity. A rebuilt piece that does not hash is a failed holder, not a repaired file.
+
+A file counts as held only while enough members have answered a recent challenge to rebuild it. If that fails, the project posts a store lease and someone with free grant takes the missing pieces. Some challenges are a fetch: a different member has to actually get the piece and confirm the hash. Possession without serving does not count.
+
+Nothing enters that set because someone uploaded it. A file is admitted only as the charter, the log, the inputs or accepted output of a task the project already posted, or by an `admit-file` ballot that names the hash and the size. The project has a `storage-budget`: a maximum number of bytes and a maximum number of files. A proposal over the budget does nothing until a ballot raises it or drops something else. Unadmitted bytes are not seeded, not challenged, and not sway. A member can propose a file, but the proposal is a hash and a size, not the bytes, and a worker key can only propose so many per day so the log itself is not the spam channel.
+
+Answering challenges on admitted pieces earns storage sway on that charter. It decays, it does not transfer, and a charter caps it so a shelf of disks cannot outweigh accepted work. Unused capacity, and disk rented to no project, earns nothing.
 
 Filecoin's newer proof of data possession is the same shape of challenge, and a project may later pay a Filecoin provider in ETH to hold a cold copy. That provider does not earn sway. WindowPoSt, sector sealing, and proof-of-space plots are not used.
 
@@ -202,7 +210,7 @@ Replace `banner-tile:1` with an OCI digest. The supervisor runs it rootless, wit
 
 ### 5. The supervisor grows up
 
-Queue depth, exclusive GPUs, borrowing released devices, pause, heartbeat, and the three-reject sit-out. This is the orchestration software. It ships inside the app. A per-project disk grant lands here: files the project named, Merkle challenges, and a store lease when fewer than three holders remain. Storage sway is capped.
+Queue depth, exclusive GPUs, borrowing released devices, pause, heartbeat, and the three-reject sit-out. This is the orchestration software. It ships inside the app. A per-project disk grant lands here: admitted files only, piece hashes, parity on large files, Merkle challenges, and a store lease when a file can no longer be rebuilt. Storage sway is capped.
 
 ### 6. Overflow
 
