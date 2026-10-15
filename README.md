@@ -34,4 +34,8 @@ python -m unittest discover -s tests -v
 python -m banner serve
 ```
 
-Read [docs/LOOP.md](docs/LOOP.md) for the event list. Still out: a rollup, a real container digest, escrow, and an election.
+Read [docs/LOOP.md](docs/LOOP.md) for the event list and [docs/ROADMAP.md](docs/ROADMAP.md) for the order of the rest: the desktop shelf, the contract, Vast overflow, and the project AI.
+
+## Site
+
+[`site/`](site/) is a static site for Cloudflare Pages. Set the root directory to `site`. There is no build command. The form on `start.html` only downloads a charter file. It does not upload one.

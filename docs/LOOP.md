@@ -8,7 +8,7 @@ A **charter** is a banner. It names a pinned image and a grid of tasks. In this 
 
 A **steward** opens the charter and posts one lease per tile. Posting names the attestor. A worker cannot claim a lease that has no verifier yet.
 
-A **worker** is under one banner at a time. Pointing at a new banner leaves the old one. It pulls an open lease, renders the tile, and submits the sha256 of the bytes. It never opens a port.
+A **worker** is under one banner at a time in this reference loop. Pointing at a new banner leaves the old one. The product, in [the roadmap](ROADMAP.md), lets one machine stand under several banners, each with its own cores and GPUs. It pulls an open lease, renders the tile, and submits the sha256 of the bytes. It never opens a port.
 
 An **attestor** is the node named on the lease. It renders the same tile itself. If the hash matches, the lease is accepted and the worker's sway on that charter goes up by one. If it does not match, the lease goes back to open and sway does not move. The attestor cannot be the worker on that lease.
 

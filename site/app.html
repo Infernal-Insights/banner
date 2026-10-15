@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The app · Banner</title>
+  <meta name="description" content="One desktop app, several banners, and a separate grant of cores and GPUs for each. Quiet projects give the devices back.">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560&family=Outfit:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <header class="wrap">
+    <a class="brand" href="/"><i></i> Banner</a>
+    <nav>
+      <a href="/reef.html">Specimen</a>
+      <a href="/start.html">Start</a>
+      <a href="/app.html" aria-current="page">The app</a>
+      <a href="/roadmap.html">Roadmap</a>
+      <a href="https://github.com/Infernal-Insights/banner">Code</a>
+    </nav>
+  </header>
+
+  <main class="section wrap">
+    <p class="kicker">The shelf</p>
+    <h1>Several banners. Your card is not a pool.</h1>
+    <p class="lede">A project link opens the app and adds a container. Each container has its own cores and its own GPU switches. Most projects will be quiet. Quiet means the devices come back to you.</p>
+
+    <div class="grid-2" style="margin-top: 2rem">
+      <div class="window" aria-hidden="true">
+        <header class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></header>
+        <div class="shelf">
+          <article class="project">
+            <div class="row">
+              <h3>Reef map</h3>
+              <span class="tag">working</span>
+            </div>
+            <div class="grant"><span>Cores 4</span><span class="switches"><span class="sw on">GPU 0 on</span><span class="sw off">GPU 1 off</span></span></div>
+            <div class="grant"><span>12 tasks waiting</span><span>only while idle</span></div>
+          </article>
+          <article class="project">
+            <div class="row">
+              <h3>Harbor charts</h3>
+              <span class="tag quiet">quiet</span>
+            </div>
+            <div class="grant"><span>Cores 2, released</span><span class="switches"><span class="sw off">GPU 0 off</span><span class="sw off">GPU 1 off</span></span></div>
+            <div class="grant"><span>No tasks right now</span><span>card stays yours</span></div>
+          </article>
+        </div>
+      </div>
+
+      <div>
+        <article class="card">
+          <h3>A GPU is granted once.</h3>
+          <p>Turning GPU 0 on for Reef turns it off for Harbor. Cores can be split. A project that is pinned does not lend its devices out during someone else's rush.</p>
+        </article>
+        <article class="card" style="margin-top: 1rem">
+          <h3>A lull is not a failure.</h3>
+          <p>When the queue is empty the container stays on the shelf and the work stops. If you opted in, those idle cores may run the project's steward. They may not hunt for a different banner.</p>
+        </article>
+        <article class="card" style="margin-top: 1rem">
+          <h3>The installer is not here yet.</h3>
+          <p>The reference client is the Python loop in the repository. The app window above is the thing phase 2 builds. A join link already has a shape: <code>banner://join/reef</code>.</p>
+          <a class="more" href="https://github.com/Infernal-Insights/banner">Run the reference client</a>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer class="wrap">
+    <span>No Kubernetes on the kitchen computer.</span>
+    <a href="/roadmap.html">Phase 2</a>
+  </footer>
+</body>
+</html>
