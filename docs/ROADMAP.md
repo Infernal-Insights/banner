@@ -14,6 +14,7 @@ These are settled. A later phase does not get to quietly reverse them.
 - "Distributed LLM" means many copies of one small model with the same weights and the same instructions. It does not mean one large model sliced across home networks.
 - Vast.ai is an overflow valve for a queue that real members cannot drain. Those machines are paid. They do not earn sway.
 - Home nodes do not run Kubernetes. One supervisor inside the desktop app is the orchestrator.
+- Already-voted work does not need the leader online. Any member may post a lease that uses an image the charter already allows. The keeper publishes drafts and notes. A silent or captured keeper is replaced by a ballot, and that ballot does not need their signature.
 
 ## Where a vote lives
 
@@ -52,7 +53,7 @@ Ballots in the first governance set:
 |---|---|
 | `adopt-instructions` | The pinned text the project AI must follow |
 | `adopt-model` | The pinned weights of that AI |
-| `elect-keeper` | Who may publish a draft or post leases by hand |
+| `elect-keeper` | Who may publish a draft. Not required to post a lease |
 | `allow-image` | A container digest workers are permitted to run |
 | `burst-budget` | The most ETH per day that may be spent on Vast |
 | `count-receipts` | Whether paid overflow is even switched on |
@@ -76,7 +77,21 @@ Per project, the person sets:
 
 A GPU switch is exclusive. Turning it on here turns it off everywhere else. Cores may be split. When that project's queue is empty, its cores and GPUs are released even if the switch stays on. The container says `quiet` and the card is the owner's again. A second project with a full queue may use devices that are currently released, if the owner granted them, and it gives them back when the first queue wakes up. The owner can also pin a project so nothing else borrows its devices.
 
-The app does not open a port. It pulls leases. The first version can be the Python client with a tray and this window. The shell, when it needs to be a real installer, should be Tauri rather than Electron: one bundle, a small runtime, and a protocol handler. Kubernetes is not involved.
+The app does not open a port. It pulls leases from any peer that has them, not from the leader's machine. The first version can be the Python client with a tray and this window. The shell, when it needs to be a real installer, should be Tauri rather than Electron: one bundle, a small runtime, and a protocol handler. Kubernetes is not involved.
+
+## If the leader is cut off
+
+A project lives because other machines already have it, not because the leader's computer is still on. This is not true of the reference loop. That log is one file on one machine, and the site is a Cloudflare page. Both die with the machine or the domain. The phases below are what has to be true before the claim is real.
+
+Every member who joins stores the charter and the signed log. The charter is named by the hash of its bytes. The website is a billboard for people who can reach it. It is not the copy that counts. Seizing the domain, or the leader, does not delete a replica sitting on someone else's disk.
+
+New tasks do not wait on the leader. Once the members have voted the instructions and the allowed images, any of them may post a lease that fits those rules. The steward, when it exists, is those same rules running as a quorum of copies on members' machines. None of those copies has to be the leader's. A keeper who is jailed, offline, or coerced is a missing publisher of notes, not a missing project. The next ballot names another keeper without the old one agreeing.
+
+What a cut-off leader cannot do, even if their key is seized: rewrite an event already in other people's logs. What they can still do until a ballot or until sway decays: sign new work as a member, inside the rules already voted. That is the same power any member has.
+
+A government that cuts one country's internet does not erase the project for anyone outside it. Those people keep pulling leases from each other and from the rollup. People inside the cut keep the last charter they stored. They can keep working on a local network, or by carrying the log file to another machine. When a path to the outside exists again, the outside log wins a conflict: a tile already accepted out there is not accepted a second time, and sway is counted only for results the surviving log takes. If every replica was inside the cut, nothing outside has the project until someone carries a copy out. Replication only helps where a copy already is.
+
+MetaMask and the rollup are unreachable inside that cut, so a ballot cannot close there. Work that only needs the last voted instructions does not need a ballot. Vast does not help. It is a company on the public internet.
 
 ## Orchestration
 
@@ -156,7 +171,7 @@ Done. A signed log, one charter, a tile any second node can recompute, sway that
 
 ### 1. The bill and the site
 
-In progress. A static site a stranger can read, a specimen banner, and a form that writes a charter file. Cloudflare Pages. No wallet button, no fake installer.
+In progress. A static site a stranger can read, a specimen banner, and a form that writes a charter file. Cloudflare Pages. No wallet button, no fake installer. The site is not a replica. A project someone joined still has to be stored by their app.
 
 ### 2. The shelf
 
@@ -164,7 +179,7 @@ The desktop window: more than one project, core counts, GPU switches, idle-only,
 
 ### 3. The contract
 
-The same transitions as the log, on a local Ethereum chain and then on one cheap rollup. Worker key earns sway. Personal key, MetaMask included, signs ballots and funds escrow. Linking the two keys. Sway has no `transfer`. Decay can land in this phase once acceptance works on the contract. Ballots for instructions, keeper, allowed images, and burst budget.
+The same transitions as the log, on a local Ethereum chain and then on one existing rollup. The rollup orders events for anyone who can reach it. It is not the only copy: every member keeps the charter and the log, and a lease can be fetched from any of them. Worker key earns sway. Personal key, MetaMask included, signs ballots and funds escrow. Linking the two keys. Sway has no `transfer`. Decay can land in this phase once acceptance works on the contract. Ballots for instructions, keeper, allowed images, and burst budget. Posting a lease that matches the voted rules does not require the leader's key. A local log from inside a network cut can be merged later, and an acceptance already in the outside log wins.
 
 ### 4. Real work
 
