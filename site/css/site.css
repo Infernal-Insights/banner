@@ -86,10 +86,18 @@ h1 { font-size: clamp(3.2rem, 8vw, 6.4rem); margin: 0.2rem 0 0.6rem; }
 h2 { font-size: clamp(2rem, 4vw, 3rem); margin: 0 0 0.6rem; }
 
 .lede {
-  max-width: 38rem;
+  max-width: 40rem;
   font-size: 1.25rem;
-  color: var(--muted);
+  color: var(--ink);
   margin: 0;
+}
+
+.fine { color: var(--muted); margin: 0.8rem 0 0; max-width: 40rem; }
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
 .hero { padding: 4.5rem 0 2rem; }
@@ -327,7 +335,7 @@ code {
 @media (max-width: 800px) {
   body { background: linear-gradient(90deg, var(--flag) 0 7px, transparent 7px), var(--bg); }
   .wrap { width: min(1080px, calc(100% - 2rem)); }
-  .roll, .grid-2, .cards, .phases li { grid-template-columns: 1fr; }
+  .roll, .grid-2, .cards, .compare, .phases li { grid-template-columns: 1fr; }
   .roll article + article { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
   header { align-items: flex-start; flex-direction: column; }
   h1 { font-size: 3.1rem; }

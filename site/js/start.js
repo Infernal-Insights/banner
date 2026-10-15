@@ -13,7 +13,7 @@ form.addEventListener("submit", (event) => {
   const charter = read()
   const warn = document.querySelector("#form-warn")
   if (!charter) {
-    warn.textContent = "The name, the id, and the reason to join are required."
+    warn.textContent = "Add a name, a short link name, and why someone should contribute."
     return
   }
   warn.textContent = ""
@@ -30,7 +30,7 @@ document.querySelector("#copy-link").addEventListener("click", async () => {
   const charter = read()
   const warn = document.querySelector("#form-warn")
   if (!charter) {
-    warn.textContent = "Write the name and the reason to join first."
+    warn.textContent = "Add a name and why someone should contribute first."
     return
   }
   const link = "banner://join/" + charter.id
@@ -83,8 +83,8 @@ function render() {
     const next = slug(field("name"))
     if (next) idInput.value = next
   }
-  const name = field("name") || "Untitled banner"
-  const id = slug(field("cid")) || "untitled"
+  const name = field("name") || "Your project"
+  const id = slug(field("cid")) || "your-project"
   text("preview-name", name)
   text("preview-summary", field("summary"))
   text("preview-pitch", field("pitch"))

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Start a banner</title>
-  <meta name="description" content="Write the bill for a project: why someone should point a machine at it, the goals, and how finished work is recognized.">
+  <title>Start a project · Banner</title>
+  <meta name="description" content="Describe a Banner project: what you are finishing, why someone should contribute their computer, and how the work is checked.">
   <link rel="icon" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,63 +15,60 @@
   <header class="wrap">
     <a class="brand" href="/"><i></i> Banner</a>
     <nav>
-      <a href="/reef.html">Specimen</a>
-      <a href="/start.html" aria-current="page">Start</a>
+      <a href="/example.html">A project</a>
       <a href="/app.html">The app</a>
+      <a href="/start.html" aria-current="page">Start a project</a>
       <a href="/roadmap.html">Roadmap</a>
-      <a href="https://github.com/Infernal-Insights/banner">Code</a>
     </nav>
   </header>
 
   <main class="section wrap">
-    <p class="kicker">Draft a charter</p>
-    <h1>Sell the work, not a token.</h1>
-    <p class="lede">The paragraph you write here is what a stranger reads before they point a machine at you. Nothing is uploaded. You download the charter and keep it.</p>
+    <p class="kicker">Start a project</p>
+    <h1>Give people a reason to contribute their computer.</h1>
+    <p class="lede">Write what you are trying to finish, why it matters, and how a second computer can check the work. The preview is the page a stranger will read. Nothing is uploaded. You save the file on your own computer.</p>
 
     <div class="grid-2" style="margin-top: 2rem">
       <form class="bill" id="charter-form">
-        <p class="kicker">The bill</p>
+        <p class="kicker">Your project</p>
         <label for="name">Name</label>
-        <input id="name" name="name" maxlength="80" value="Harbor charts" required>
-        <label for="cid">Short id</label>
-        <input id="cid" name="id" maxlength="32" value="harbor" spellcheck="false" required>
-        <label for="summary">One line</label>
-        <input id="summary" name="summary" maxlength="140" value="A chart a small boat can actually use.">
-        <label for="pitch">Why someone should stand under it</label>
-        <textarea id="pitch" name="pitch" maxlength="600">The entrance is still a guess. A machine that shows up finishes one tile of the chart, and a second machine checks it before the tile is allowed on the page.</textarea>
+        <input id="name" name="name" maxlength="80" placeholder="North Branch water" required>
+        <label for="cid">Short name for the link</label>
+        <input id="cid" name="id" maxlength="32" placeholder="north-branch" spellcheck="false" required>
+        <label for="summary">One sentence</label>
+        <input id="summary" name="summary" maxlength="140" placeholder="A year of river readings, checked twice.">
+        <label for="pitch">Why someone should contribute</label>
+        <textarea id="pitch" name="pitch" maxlength="600" placeholder="What gets finished if their computer shows up, and why they should care."></textarea>
         <label for="goals">Goals, one per line</label>
-        <textarea id="goals" name="goals">Finish the harbor entrance
-Publish a tile only after it is accepted</textarea>
-        <label for="work">What a machine will do</label>
-        <textarea id="work" name="work" placeholder="Render one chart tile from a pinned image."></textarea>
+        <textarea id="goals" name="goals" placeholder="Publish the year&#10;Let contributors choose the next site"></textarea>
+        <label for="work">What their computer will do</label>
+        <textarea id="work" name="work" placeholder="Check one batch of readings."></textarea>
         <label for="done">How you know a task is done</label>
-        <textarea id="done" name="done" placeholder="A second machine recomputes the tile and the hash matches."></textarea>
+        <textarea id="done" name="done" placeholder="A second computer runs the same batch and agrees."></textarea>
         <div class="form-actions">
-          <button class="btn primary" type="submit">Download charter</button>
+          <button class="btn primary" type="submit">Save project file</button>
           <button class="btn" id="copy-link" type="button">Copy join link</button>
         </div>
         <p class="warn" id="form-warn"></p>
-        <p class="note">The join link will be <code id="join-preview">banner://join/harbor</code>. The app is not shipping yet, so the link is the shape, not a download.</p>
+        <p class="note">People will join at <code id="join-preview">banner://join/your-project</code>. When the app is installed, that link opens it. Until then, the link is saved with your project file.</p>
       </form>
 
       <article class="bill" id="preview" aria-live="polite">
-        <p class="kicker">How the page will read</p>
-        <h2 id="preview-name">Harbor charts</h2>
-        <p id="preview-summary">A chart a small boat can actually use.</p>
+        <p class="kicker">What people will read</p>
+        <h2 id="preview-name">Your project</h2>
+        <p id="preview-summary"></p>
         <p id="preview-pitch"></p>
         <ul class="goals" id="preview-goals"></ul>
         <p class="quiet" id="preview-work"></p>
         <div class="meta">
-          <span class="chip" id="preview-id">harbor</span>
-          <span class="chip">draft · not published</span>
+          <span class="chip" id="preview-id">not saved yet</span>
         </div>
       </article>
     </div>
   </main>
 
   <footer class="wrap">
-    <span>A draft on your computer. Not a chain transaction.</span>
-    <a href="/roadmap.html">When publishing exists</a>
+    <span>Saved on your computer. Not published yet.</span>
+    <a href="/example.html">See a finished example</a>
   </footer>
   <script src="/js/start.js"></script>
 </body>
