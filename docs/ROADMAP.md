@@ -15,6 +15,7 @@ These are settled. A later phase does not get to quietly reverse them.
 - Vast.ai is an overflow valve for a queue that real members cannot drain. Those machines are paid. They do not earn sway.
 - Home nodes do not run Kubernetes. One supervisor inside the desktop app is the orchestrator.
 - Already-voted work does not need the leader online. Any member may post a lease that uses an image the charter already allows. The keeper publishes drafts and notes. A silent or captured keeper is replaced by a ballot, and that ballot does not need their signature.
+- Disk stores files the project named, in the original bytes. Empty space earns nothing. A holder proves possession by answering a random chunk challenge, checked like any other task. Storage sway is capped so a large disk cannot outvote the people who did the work.
 
 ## Where a vote lives
 
@@ -163,6 +164,20 @@ The muster note is the recruiting tool. It is a draft on the project page until 
 
 If the model has nothing honest to add, it stays quiet. An empty queue is not a failure.
 
+## Storage
+
+A project needs its files to outlive the person who started it: the charter, the log, the source files a second computer must rerun, and the model the members voted for. That is the storage problem. Filling a disk with puzzles is not.
+
+The files stay in their original bytes, named by their hash. A member grants this project a number of gigabytes, the same way they grant cores. Compute goes quiet when the queue is empty. The files they promised to hold stay until they revoke the grant, and a revoke waits until enough other members hold them.
+
+Proof of possession, not proof of replication. The holder builds a Merkle tree over the file and commits the root. A challenge, taken from a public random, names a chunk. The holder returns that chunk and the path to the root, signed with the worker key. A checker hashes the chunk and checks the path. Same rule as any other task: a second machine recomputes a pure function. There is no sealing step. Sealing would hide the bytes the next task has to read, and it is too heavy for the machines this is for.
+
+A file counts as held only while at least three members have answered a recent challenge. If that number falls, the project posts a store lease and someone with free grant takes a copy. Some challenges are a fetch: a different member has to actually get the chunk and confirm the hash. Possession without serving does not count.
+
+Answering challenges on files the project listed earns storage sway on that charter. It decays, it does not transfer, and a charter caps it so a shelf of disks cannot outweigh accepted work. Unused capacity, and disk rented to no project, earns nothing.
+
+Filecoin's newer proof of data possession is the same shape of challenge, and a project may later pay a Filecoin provider in ETH to hold a cold copy. That provider does not earn sway. WindowPoSt, sector sealing, and proof-of-space plots are not used.
+
 ## Phases
 
 ### 0. Reference loop
@@ -187,7 +202,7 @@ Replace `banner-tile:1` with an OCI digest. The supervisor runs it rootless, wit
 
 ### 5. The supervisor grows up
 
-Queue depth, exclusive GPUs, borrowing released devices, pause, heartbeat, and the three-reject sit-out. This is the orchestration software. It ships inside the app.
+Queue depth, exclusive GPUs, borrowing released devices, pause, heartbeat, and the three-reject sit-out. This is the orchestration software. It ships inside the app. A per-project disk grant lands here: files the project named, Merkle challenges, and a store lease when fewer than three holders remain. Storage sway is capped.
 
 ### 6. Overflow
 
@@ -203,4 +218,4 @@ Elect the keeper. Publish muster notes by vote. The project page becomes the thi
 
 ## Not in any phase until the above works
 
-A new L1. A tradeable vote. A Kubernetes cluster for home PCs. A model that judges "good work" without a recompute. A steward that posts to a social network by itself. Slicing one giant model across members' houses.
+A new L1. A tradeable vote. A Kubernetes cluster for home PCs. A model that judges "good work" without a recompute. A steward that posts to a social network by itself. Slicing one giant model across members' houses. Sector sealing. Proof-of-space plots. Sway for empty disk.
