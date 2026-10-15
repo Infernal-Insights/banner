@@ -16,6 +16,7 @@ These are settled. A later phase does not get to quietly reverse them.
 - Home nodes do not run Kubernetes. One supervisor inside the desktop app is the orchestrator.
 - Already-voted work does not need the leader online. Any member may post a lease that uses an image the charter already allows. The keeper publishes drafts and notes. A silent or captured keeper is replaced by a ballot, and that ballot does not need their signature.
 - Disk stores files the project named, in the original bytes. Empty space earns nothing. A holder proves possession by answering a random chunk challenge, checked like any other task. Storage sway is capped so a large disk cannot outvote the people who did the work.
+- A project has no database server. Queryable tables are files an accepted task produced under a schema the members voted on. Each member runs queries on a local copy.
 
 ## Where a vote lives
 
@@ -60,6 +61,7 @@ Ballots in the first governance set:
 | `count-receipts` | Whether paid overflow is even switched on |
 | `admit-file` | A hash and a size allowed into the project's storage |
 | `storage-budget` | The most bytes the project may hold, and how many files |
+| `adopt-schema` | The column layout every table in the project must follow |
 
 A ballot passes by more sway in favor than against, among ballots that arrive before it expires. There is no quorum theater in the first contract. A charter can raise its own threshold later, in the charter, not in a global parameter.
 
@@ -185,6 +187,18 @@ Nothing enters that set because someone uploaded it. A file is admitted only as 
 Answering challenges on admitted pieces earns storage sway on that charter. It decays, it does not transfer, and a charter caps it so a shelf of disks cannot outweigh accepted work. Unused capacity, and disk rented to no project, earns nothing.
 
 Filecoin's newer proof of data possession is the same shape of challenge, and a project may later pay a Filecoin provider in ETH to hold a cold copy. That provider does not earn sway. WindowPoSt, sector sealing, and proof-of-space plots are not used.
+
+## The database
+
+There is no database to log into. A shared server would be a leader, and the project is not allowed to die with one machine.
+
+What members query is a set of tables, and a table is just another admitted file. A task reads source files the project already holds, sorts the rows, and writes them in the column layout the members voted. A second machine runs the same task. If the hashes match, that table is in. Payments, names, addresses, and the links between them are rows in those files. A graph is one table of edges. Nothing is inserted by hand.
+
+The layout is a ballot, `adopt-schema`. A task whose output does not match it is rejected, the same way a bad hash is rejected. That is what keeps random columns and junk tables out. New rows arrive only as the accepted output of an allowed program, so the storage budget and the schema are both in front of a spam write.
+
+Each app keeps a local engine, DuckDB or SQLite, and loads the admitted table files into it. The engine is a cache. Delete it and the next open rebuilds it from the files. Two members agree when the same query returns the same rows, not when their database files are byte-for-byte identical. A member who does not want the whole set downloads only the tables a question needs, by the same piece transfer as any other large file.
+
+The signed log stays small. It records leases, ballots, and which table hash was accepted. It does not hold the rows.
 
 ## Phases
 
