@@ -1,16 +1,27 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from banner.roles import attest_all, open_charter, point, post_leases, sweep, work_once
-from banner.state import Log
-from banner.tile import digest, render
+from banner.roles import (
+    attest_all,
+    ensure_joined,
+    open_charter,
+    point,
+    post_leases,
+    sweep,
+    work_once,
+)
+from banner.state import Log, blank, reduce
+from banner.tile import IMAGE, digest, render
 
 
 def _reef(root: Path, ttl_s: int = 60, grid: int = 2) -> Log:
     log = Log(root)
-    open_charter(log, "reef", "Reef map", seed="reef-seed-v1", grid=grid)
-    post_leases(log, "reef", verifier="attestor", ttl_s=ttl_s)
+    for node in ("steward", "worker", "attestor", "other"):
+        ensure_joined(log, node)
+    open_charter(log, "reef", "Reef map", seed="reef-seed-v1", node="steward", grid=grid)
+    post_leases(log, "reef", verifier="attestor", node="steward", ttl_s=ttl_s)
     point(log, "worker", "reef")
     return log
 
@@ -49,7 +60,7 @@ class LoopTest(unittest.TestCase):
     def test_a_node_only_works_the_banner_it_is_under(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             log = _reef(Path(tmp))
-            open_charter(log, "dune", "Dune map", seed="dune-seed-v1", grid=1)
+            open_charter(log, "dune", "Dune map", seed="dune-seed-v1", node="steward", grid=1)
             point(log, "worker", "dune")
             self.assertIsNone(work_once(log, "worker"))
             with self.assertRaises(ValueError):
@@ -100,9 +111,53 @@ class LoopTest(unittest.TestCase):
     def test_pointing_at_a_new_banner_leaves_the_old_one(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             log = _reef(Path(tmp))
-            open_charter(log, "dune", "Dune map", seed="dune-seed-v1")
+            open_charter(log, "dune", "Dune map", seed="dune-seed-v1", node="steward")
             point(log, "worker", "dune")
             self.assertEqual(log.state["allegiance"]["worker"], "dune")
+
+    def test_only_the_opener_can_post(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            log = _reef(Path(tmp), grid=1)
+            with self.assertRaises(ValueError) as raised:
+                log.commit(
+                    "lease.posted",
+                    node="worker",
+                    lease_id="reef-extra",
+                    charter_id="reef",
+                    tx=0,
+                    ty=0,
+                    image=IMAGE,
+                    verifier="attestor",
+                    ttl_s=60,
+                    at=3,
+                )
+            self.assertIn("opened", str(raised.exception))
+
+    def test_a_changed_signature_does_not_replay(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _reef(root, grid=1)
+            path = root / "log.jsonl"
+            lines = path.read_text().splitlines()
+            last = json.loads(lines[-1])
+            last["sig"] = ("0" if last["sig"][-1] != "0" else "1") + last["sig"][1:]
+            lines[-1] = json.dumps(last, sort_keys=True, separators=(",", ":"))
+            path.write_text("\n".join(lines) + "\n")
+            with self.assertRaises(ValueError):
+                Log(root)
+
+    def test_an_unsigned_event_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            reduce(
+                blank(),
+                {
+                    "kind": "allegiance.set",
+                    "at": 1,
+                    "seq": 1,
+                    "node": "worker",
+                    "charter_id": "reef",
+                },
+            )
 
 
 if __name__ == "__main__":
