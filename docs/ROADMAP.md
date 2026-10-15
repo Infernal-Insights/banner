@@ -1,6 +1,6 @@
 # Roadmap
 
-Banner is a way to point spare computers at a project and have that finished work count as a say in the project. The projects are software, models, and campaigns that need computers behind them. The reference loop on `main` already does a thin version of this on one machine. This is the order to build the rest.
+Banner is a way to point spare computers at a project and have that finished work count as a say in the project. The projects are software, models, and campaigns that need computers behind them, including public-record work where the output is a map a second computer can rebuild, not a verdict. The reference loop on `main` already does a thin version of this on one machine. This is the order to build the rest.
 
 ## Decisions
 
