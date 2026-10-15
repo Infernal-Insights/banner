@@ -1,6 +1,52 @@
 # Roadmap
 
-Banner is a way to point spare computers at a project and have that finished work count as a say in the project. The projects are software, models, and campaigns that need computers behind them, including public-record work where the output is a map a second computer can rebuild, not a verdict. The reference loop on `main` already does a thin version of this on one machine. This is the order to build the rest.
+Banner is a distributed computer for one project at a time. People who care about that project contribute CPU, GPU, and disk. The machines share the work, the files, and a relational database that ties the work to the files. Two layers run the project. One is ordinary software and cannot be persuaded. The other is a set of AI workers that act as the project manager. Finished, checked work is the member's say in the project. It is not a coin.
+
+The projects are software, models, and campaigns that need this kind of computer, including public-record work where the output is a map a second computer can rebuild, not a verdict. The reference loop on `main` is only the acceptance rule, running on one machine. This is the order to build the rest.
+
+## How it connects
+
+```mermaid
+flowchart TB
+  member[Member]
+  app[App]
+  member --> app
+
+  subgraph node [On every member]
+    orch[Orchestrator]
+    grant[Grant: CPU, GPU, disk]
+    query[Local query]
+    app --> orch
+    app --> grant
+  end
+
+  subgraph project [One project]
+    rules[Votes: schema, budget, allowed work, instructions]
+    db[Relational tables]
+    shards[Sharded pieces]
+    leases[Task leases]
+  end
+
+  mgr[AI project managers]
+
+  orch -->|takes a lease the grant allows| leases
+  orch -->|joins rows| query
+  query --> db
+  db -->|stored as| shards
+  orch -->|fetch and repair| shards
+  leases -->|accepted recompute writes a row and sway| db
+  db -->|queue, failures, missing pieces| mgr
+  mgr -->|identical proposal from several replicas| orch
+  rules -->|binds| orch
+  rules -->|same model, same instructions| mgr
+  db -->|sway weights the next vote| rules
+```
+
+A member grants this project some cores, some GPUs, and some disk. The orchestrator on their machine is the only thing that spends that grant. It will not take a task the grant does not allow, and it gives the devices back when the queue is empty. Disk they promised stays until the pieces can be rebuilt without them.
+
+The database is the hub. A task that a second machine agrees with becomes rows: the task, the output file, the links those rows make, and the worker who did it. Those rows are files in the sharded store. The orchestrator loads the pieces it needs and joins them locally. The AI managers read the same tables. They do not write them. They hand the orchestrator a proposal, and only when enough managers produced the same one. The orchestrator then posts a lease if the votes already allow that kind of work.
+
+Sway is written by the same acceptance that writes the row. A later vote, weighted by that sway, can change the schema, the budget, the allowed programs, or the instructions the managers must follow. MetaMask can sign that vote or pay ETH for extra machines. It is not on the path between a task and a row.
 
 ## Decisions
 
@@ -10,13 +56,13 @@ These are settled. A later phase does not get to quietly reverse them.
 - MetaMask is a pen, not a wallet full of votes. It signs ballots and sends ETH into an escrow. The vote weight is read from the sway counter at that moment. There is nothing in the wallet to sell.
 - A machine may stand under more than one banner. Each banner gets an explicit grant: this many cores, these GPUs, this disk. A GPU granted to one project is not available to another. The reference loop still points a node at one banner. That is a limitation of this cut, not the product.
 - An empty queue is allowed. Most projects will be quiet most of the time. Quiet means the devices go back to the owner. The software does not invent work to keep a card busy.
-- The project AI proposes. It does not accept results, ban workers, or publish on behalf of the project. Verification stays a recompute. Publishing and new kinds of work stay a vote.
-- "Distributed LLM" means many copies of one small model with the same weights and the same instructions. It does not mean one large model sliced across home networks.
+- The project AI proposes. It does not accept results, ban workers, or publish on behalf of the project. Verification stays a recompute. Publishing and new kinds of work stay a vote. The non-AI orchestrator is the layer that places work and rejects a bad result. The AI workers are the project manager, and they can be offline without stopping that layer.
+- "Distributed LLM" means many copies of one small model with the same weights and the same instructions, reading the project's database and proposing together. It does not mean one large model sliced across home networks.
 - Vast.ai is an overflow valve for a queue that real members cannot drain. Those machines are paid. They do not earn sway.
-- Home nodes do not run Kubernetes. One supervisor inside the desktop app is the orchestrator.
+- Home nodes do not run Kubernetes. The orchestrator is the supervisor inside the desktop app, on every member, with no cluster control plane.
 - Already-voted work does not need the leader online. Any member may post a lease that uses an image the charter already allows. The keeper publishes drafts and notes. A silent or captured keeper is replaced by a ballot, and that ballot does not need their signature.
 - Disk stores files the project named, in the original bytes. Empty space earns nothing. A holder proves possession by answering a random chunk challenge, checked like any other task. Storage sway is capped so a large disk cannot outvote the people who did the work.
-- A project has no database server. Queryable tables are files an accepted task produced under a schema the members voted on. Each member runs queries on a local copy.
+- The database is distributed and relational, and it has no server. One voted schema per project. Rows are sharded table files. A node joins them locally. Writes happen only when a task is accepted.
 
 ## Where a vote lives
 

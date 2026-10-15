@@ -1,8 +1,8 @@
 # banner
 
-Point a machine at a charter. Finish a task another node can recompute. That finished task is your sway on the charter. Sway is not a coin, and this repository does not mint one.
+A distributed computer for one project. Members contribute CPU, GPU, and sharded disk. The project has a relational database those machines share, an orchestrator that places work without a model, and AI workers that manage the project by proposing the next tasks. Finished, checked work is the member's say. This repository does not mint a coin.
 
-This is the reference loop. It runs on Python 3.10 and OpenSSL 3, with no packages to install. It is not the network yet. The rules it enforces are the ones the network has to keep.
+This is the reference loop. It runs on Python 3.10 and OpenSSL 3, with no packages to install. It is not the network yet. The rules it enforces are the ones the network has to keep: a second machine recomputes, and only that agreement counts.
 
 ```bash
 python -m banner demo
