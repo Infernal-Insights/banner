@@ -16,13 +16,15 @@ A claimed lease that misses its ttl goes back to open. Someone else under the sa
 
 ## Events
 
-`charter.opened`, `allegiance.set`, `lease.posted`, `lease.claimed`, `lease.heartbeat`, `result.submitted`, `result.accepted`, `result.rejected`, `lease.expired`.
+`node.joined`, `charter.opened`, `allegiance.set`, `lease.posted`, `lease.claimed`, `lease.heartbeat`, `result.submitted`, `result.accepted`, `result.rejected`, `lease.expired`.
 
-Sway is written only inside `result.accepted`. No event transfers it.
+Every event except `lease.expired` is signed by the `node` it names. A node joins by publishing its Ed25519 public key and signing that publication. After that, the log refuses a charter, a lease, a claim, or an acceptance whose signature does not match the key bound to that name. `lease.expired` is unsigned because the clock is the authority: it is accepted only after the ttl, and it only returns the tile to open.
+
+The node that opens a charter is the only one that can post its leases, and the verifier named on a lease has to have joined already. Sway is written only inside `result.accepted`. No event transfers it. Private keys stay in `banner-data/keys/` and are mode `0600`.
 
 ## What this cut does not do
 
-Keys. Any local process that can append to the log can append to the log. The next cut binds a node id to a signature and puts the same transitions in a contract on a local Ethereum chain.
+A rollup. The signed log is still a file on one machine. The next cut is the same transitions in a contract, checked with `ecrecover` instead of OpenSSL.
 
 An LLM steward. The poster of leases is a loop over the grid.
 

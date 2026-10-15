@@ -1,7 +1,7 @@
 """Append-only log. State is always rebuilt from it.
 
-Nothing here transfers sway. Acceptance increments the worker's count
-on that charter and no other function writes the counter.
+A node signs every event except lease expiry. Acceptance increments the
+worker's sway on that charter, and no function transfers the counter.
 """
 
 from __future__ import annotations
@@ -13,6 +13,7 @@ import re
 import time
 from pathlib import Path
 
+from banner.keys import KeyStore, canonical, verify
 from banner.tile import IMAGE
 
 _ID = re.compile(r"^[a-z][a-z0-9-]{0,31}$")
@@ -20,12 +21,22 @@ _OPEN = {"open", "claimed", "submitted", "accepted"}
 
 
 def blank() -> dict:
-    return {"seq": 0, "charters": {}, "allegiance": {}, "leases": {}, "sway": {}}
+    return {
+        "seq": 0,
+        "keys": {},
+        "charters": {},
+        "allegiance": {},
+        "leases": {},
+        "sway": {},
+    }
 
 
 def reduce(state: dict, event: dict) -> dict:
+    _check_sig(state, event)
     kind = event["kind"]
-    if kind == "charter.opened":
+    if kind == "node.joined":
+        _join(state, event)
+    elif kind == "charter.opened":
         _open_charter(state, event)
     elif kind == "allegiance.set":
         _set_allegiance(state, event)
@@ -50,6 +61,33 @@ def reduce(state: dict, event: dict) -> dict:
     return state
 
 
+def _check_sig(state: dict, event: dict) -> None:
+    if event["kind"] == "lease.expired":
+        if "sig" in event:
+            raise ValueError("expiry is authorized by the clock, not a signature")
+        return
+    sig = event.get("sig")
+    if not isinstance(sig, str):
+        raise ValueError("missing signature")
+    if event["kind"] == "node.joined":
+        pub = event.get("pub")
+        if not isinstance(pub, str):
+            raise ValueError("join is missing a public key")
+    else:
+        pub = state["keys"].get(event.get("node"))
+        if pub is None:
+            raise ValueError("node has not joined")
+    if not verify(pub, canonical(event), sig):
+        raise ValueError("bad signature")
+
+
+def _join(state: dict, event: dict) -> None:
+    node = _ident(event["node"], "node")
+    if node in state["keys"]:
+        raise ValueError(f"node already joined: {node}")
+    state["keys"][node] = event["pub"]
+
+
 def _open_charter(state: dict, event: dict) -> None:
     cid = _ident(event["charter_id"], "charter")
     if cid in state["charters"]:
@@ -72,6 +110,7 @@ def _open_charter(state: dict, event: dict) -> None:
         "image": event["image"],
         "grid": grid,
         "seed": seed,
+        "owner": _ident(event["node"], "node"),
     }
     state["sway"][cid] = {}
 
@@ -89,9 +128,13 @@ def _post_lease(state: dict, event: dict) -> None:
     charter = state["charters"].get(cid)
     if charter is None:
         raise ValueError("no such charter")
+    if event["node"] != charter["owner"]:
+        raise ValueError("only the node that opened the charter can post leases")
     if event["image"] != charter["image"]:
         raise ValueError("image does not match the charter")
     verifier = _ident(event["verifier"], "verifier")
+    if verifier not in state["keys"]:
+        raise ValueError("verifier has not joined")
     tx, ty = int(event["tx"]), int(event["ty"])
     if not (0 <= tx < charter["grid"] and 0 <= ty < charter["grid"]):
         raise ValueError("tile is outside the charter grid")
@@ -239,6 +282,7 @@ class Log:
         self.root = Path(root)
         self.root.mkdir(parents=True, exist_ok=True)
         self.path = self.root / "log.jsonl"
+        self.keys = KeyStore(self.root / "keys")
         self.state = blank()
         if self.path.exists():
             for line in self.path.read_text().splitlines():
@@ -246,12 +290,16 @@ class Log:
                     reduce(self.state, json.loads(line))
 
     def commit(self, kind: str, at: float | None = None, **fields: object) -> dict:
-        event = {
+        event: dict = {
             "kind": kind,
-            "at": time.time() if at is None else at,
+            "at": int(time.time() if at is None else at),
             "seq": self.state["seq"] + 1,
             **fields,
         }
+        if kind == "node.joined":
+            event["pub"] = self.keys.public_hex(str(event["node"]))
+        if kind != "lease.expired":
+            event["sig"] = self.keys.sign(str(event["node"]), canonical(event))
         trial = copy.deepcopy(self.state)
         reduce(trial, event)
         line = json.dumps(event, sort_keys=True, separators=(",", ":"))

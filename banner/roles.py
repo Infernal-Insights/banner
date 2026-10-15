@@ -21,6 +21,7 @@ def open_charter(
     charter_id: str,
     name: str,
     seed: str,
+    node: str,
     grid: int = 2,
     summary: str = "",
     at: float | None = None,
@@ -28,6 +29,7 @@ def open_charter(
     return log.commit(
         "charter.opened",
         at=at,
+        node=node,
         charter_id=charter_id,
         name=name,
         seed=seed,
@@ -41,6 +43,7 @@ def post_leases(
     log: Log,
     charter_id: str,
     verifier: str,
+    node: str,
     ttl_s: int = 60,
     at: float | None = None,
 ) -> list[dict]:
@@ -59,6 +62,7 @@ def post_leases(
                     image=charter["image"],
                     verifier=verifier,
                     ttl_s=ttl_s,
+                    node=node,
                 )
             )
     return posted
@@ -74,7 +78,7 @@ def sweep(log: Log, at: float | None = None) -> int:
     expired = 0
     for lease in list(log.state["leases"].values()):
         if lease["status"] == "claimed" and now > lease["last_beat"] + lease["ttl_s"]:
-            log.commit("lease.expired", at=now, lease_id=lease["id"], node=lease["worker"])
+            log.commit("lease.expired", at=now, lease_id=lease["id"])
             expired += 1
     return expired
 
@@ -173,18 +177,28 @@ def counts(log: Log, charter_id: str) -> dict[str, int]:
     return found
 
 
+def ensure_joined(log: Log, node: str, at: float | None = None) -> None:
+    if not log.keys.exists(node):
+        log.keys.create(node)
+    if node not in log.state["keys"]:
+        log.commit("node.joined", at=at, node=node)
+
+
 def demo(root: Path | str, grid: int = 2) -> tuple[Log, Path]:
     log = Log(root)
+    for node in ("steward", "worker", "attestor"):
+        ensure_joined(log, node)
     if "reef" not in log.state["charters"]:
         open_charter(
             log,
             "reef",
             "Reef map",
             seed="reef-seed-v1",
+            node="steward",
             grid=grid,
             summary="A seeded map split into tiles. The picture is the receipt you can see.",
         )
-        post_leases(log, "reef", verifier="attestor", ttl_s=60)
+        post_leases(log, "reef", verifier="attestor", node="steward", ttl_s=60)
         point(log, "worker", "reef")
     while work_once(log, "worker") is not None:
         pass
