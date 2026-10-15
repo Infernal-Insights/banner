@@ -21,7 +21,7 @@ flowchart TB
   end
 
   subgraph project [One project]
-    rules[Votes: schema, budget, allowed work, instructions]
+    rules[Votes: schema, budget, manager version]
     db[Relational tables]
     shards[Sharded pieces]
     leases[Task leases]
@@ -88,7 +88,8 @@ A ballot is a typed message, not a coin transfer.
 ```
 banner-ballot:1
 charter: reef
-action: adopt-instructions
+action: adopt-manager
+version: 3
 cid: bafy...
 expires: <unix>
 ```
@@ -99,8 +100,7 @@ Ballots in the first governance set:
 
 | Action | What it changes |
 |---|---|
-| `adopt-instructions` | The pinned text the project AI must follow |
-| `adopt-model` | The pinned weights of that AI |
+| `adopt-manager` | The next version of the project manager: its instructions and its weights, together |
 | `elect-keeper` | Who may publish a draft. Not required to post a lease |
 | `allow-image` | A container digest workers are permitted to run |
 | `burst-budget` | The most ETH per day that may be spent on Vast |
@@ -188,7 +188,13 @@ The desktop app does not embed a Vast account. A person at home is not asked to 
 
 ## The project AI
 
-Each charter may name a steward. The steward is a small language model, small enough to run on one consumer GPU or, slowly, on CPU. Every machine that has opted into steward duty for that project runs the same weights and the same instruction text. Both are pinned by digest. Changing either is a ballot (`adopt-model`, `adopt-instructions`). The voters are the people with sway on that project, signing from the app or with MetaMask.
+Each charter has a project manager, and the manager is a version the members can replace. A version is two files and a parent: the instruction text, the model weights, and the version it was edited from. Both files are named by their hash. Every machine that has opted into manager duty runs that exact version. A replica still on an older one is ignored.
+
+Anyone with sway can propose an edit. The proposal stores the new text, or the hash of new weights if those changed, and the diff is what voters read. The current manager may draft an edit too. Several replicas have to produce the same draft before it even becomes a proposal. A draft is not installed. It sits until an `adopt-manager` ballot closes. The weight on that ballot is the voter's unexpired sway. More sway for than against adopts it. The same vote can put an older version back, which is how a bad manager is removed without the person who wrote it.
+
+When a version is adopted, the orchestrator stops posting proposals from the old one. In-flight drafts hashed under the old text do not carry over. New weights have to fit the storage budget and be fetched like any other large file before a machine can serve as a manager again. Changing the instructions is the common edit. Changing the weights is rare, and it is a different file in the same version so the two cannot drift apart.
+
+The manager still cannot accept a result, ban a worker, raise a budget, or post in public. Proposing its own next version is allowed. Adopting that version is the members' vote, not the model's.
 
 Duty runs in the lulls. A project with an empty work queue may still ask opted-in machines to spend idle cores on the steward. It may not touch a GPU the owner did not grant, and it stops when real leases appear.
 
@@ -205,7 +211,7 @@ A proposal may not:
 - mark a result accepted
 - ban a worker
 - raise the burst budget
-- change its own instructions
+- change its own version. It may draft the next one. Only sway adopts it.
 - post to a social network
 
 Failed recomputes already have a non-AI rule: a worker who is rejected three times on a charter sits out of that charter for a while. The model can highlight the pattern. The rule does the punishing.
@@ -278,7 +284,7 @@ Charter escrow in ETH. A passed `burst-budget` ballot. A rented Vast box boots t
 
 ### 7. The steward
 
-Pinned small model, pinned instructions, replicas on opted-in machines during lulls, quorum on the proposal hash. Draft leases, draft fraud notes, draft muster notes. No accept button and no social account.
+Pinned manager version, replicas on opted-in machines during lulls, quorum on the proposal hash. A new version can be proposed, including by the manager, and only an `adopt-manager` vote installs it. Draft leases, draft fraud notes, draft muster notes. No accept button and no social account.
 
 ### 8. Keeping a banner
 
